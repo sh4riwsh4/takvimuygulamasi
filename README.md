@@ -26,3 +26,17 @@ Programın veritabanı bağlantısı test etmek/görüntülemek için kullanıld
 ### Kurulum
 
 Gerekli kütüphaneler kurulduktan sonra programı çalıştırmak için yapılması gereken ekstra bir şey yok.
+
+### Uygulamadan Fotoğraflar
+![](photos/giris.png)
+Giriş ekranı.
+![](photos/kayit.png)
+Kayıt olma ekranı.
+![](olaydüzenle/giris.png)
+Etkinliği düzenleme ekranı.
+![](photos/olaysil.png)
+Etkinliği silme ekranı.
+![](photos/ornek.png)
+Gelecek tarihe eklenmiş etkinlik ekranı.
+![](photos/genel.png)
+Yakın tarihe eklenmiş etkinlik ekranı.
