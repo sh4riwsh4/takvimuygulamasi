@@ -4,8 +4,8 @@
 
 ## Açıklama
 
-Uygulama kayıt/giriş ekranı içeren dolayısıyla birden fazla kullanıcının kullanabileceği bir uygulama. İstediğiniz tarihe bir
-etkinliğiniz için olay oluşturabilir sonrasında isteğe bağlı olarak bunu silebilir ya da düzenleyebilirsiniz. Aynı zamanda
+Uygulama, kayıt/giriş ekranı içeren dolayısıyla birden fazla kullanıcının aynı kullanabileceği bir uygulamadır. İstediğiniz tarihe
+bir etkinliğiniz için olay oluşturabilir sonrasında isteğe bağlı olarak bunu silebilir ya da düzenleyebilirsiniz. Aynı zamanda
 oluşturduğunuz olaylara belirlediğinizde günde sizi uyaracak bir hatırlatıcı koyabilirsiniz.
 
 ### İşletim sistemi ve kullanılan yazılım dili, kütüphaneler ve programlar.
@@ -32,10 +32,8 @@ Gerekli kütüphaneler kurulduktan sonra programı çalıştırmak için yapılm
 Giriş ekranı.
 ![](photos/kayit.PNG)
 Kayıt olma ekranı.
-![](olaydüzenle/giris.PNG)
+![](photos/olaydüzenle.PNG)
 Etkinliği düzenleme ekranı.
-![](photos/olaysil.PNG)
-Etkinliği silme ekranı.
 ![](photos/ornek.PNG)
 Gelecek tarihe eklenmiş etkinlik ekranı.
 ![](photos/genel.PNG)
