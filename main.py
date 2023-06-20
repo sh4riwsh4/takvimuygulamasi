@@ -4,21 +4,18 @@ import sqlite3
 import time
 from datetime import datetime
 
+con = sqlite3.connect("database.db") 
+cur = con.cursor() # Veritabanı ve cursor bağlantısı.
 
-con = sqlite3.connect("database.db")
-cur = con.cursor()
-
-global currentDay
+global currentDay           #Sık kullanılacak verilerin global yapılması.
 global currentMonth
 global currentYear
 
 currentDay = datetime.now().day
-currentMonth = datetime.now().month
+currentMonth = datetime.now().month #Takvime yazmak için güncel tarihler.
 currentYear = datetime.now().year
 
-#print(time.strftime('%A'))
-exceptions = [4, 6, 9, 11]
-
+exceptions = [4, 6, 9, 11] #30 gün olan aylar.
 months=["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
 dayOfWeek = {
     "Monday": 1,
@@ -30,20 +27,21 @@ dayOfWeek = {
     "Sunday": 7
 }
 numbers=["0","1","2","3","4","5","6","7","8","9"]
+
 calendarButtons = []
 
 root = ct.CTk()
 
-root.geometry("1100x650") #300x400
+root.geometry("1100x650") 
 root.title("Takvim")
 root.resizable(False, False)
-ct.set_appearance_mode("light")
+ct.set_appearance_mode("light")  #Ekran boyutu ve renk ayarları
 
-def login(usr, psw):
+def login(usr, psw):   # Girilen kullanıcı adı ve şifrenin veritabanında kontrol edilmesi.
     cur.execute("""SELECT password FROM userdata WHERE username = (?)""", (usr,))
     dbPsw = cur.fetchone()
     try:
-        if dbPsw[0] == psw:
+        if dbPsw[0] == psw:    
             global loggedInUser
             loggedInUser = usr
             succesfulLogin()
@@ -52,9 +50,9 @@ def login(usr, psw):
     except:
         errorBox("login")
 
-def openLoginPanel():
+def openLoginPanel(): # Giriş yapma ekranı.
     
-    def showPassWordEvent():
+    def showPassWordEvent(): # Şifreyi göster butonunun çalışması
         if buttonVariable.get() == "on":
             passwordEntry.configure(show = "")
         elif buttonVariable.get() == "off":
@@ -63,7 +61,7 @@ def openLoginPanel():
     def innerFunction():
         givenUserName = usernameEntry.get()
         givenPassword = passwordEntry.get()
-        login(givenUserName, givenPassword)
+        login(givenUserName, givenPassword) # Girilen k. adı ve şifrenin kontrol fonksiyonuna gitmesi.
     
     global loginPanel
     loginPanel = ct.CTkFrame(master = root, width = 300, height = 400)
@@ -90,7 +88,7 @@ def openLoginPanel():
     hidePasswordButton.grid(row = 4, column = 0, sticky = "w",pady = 10, padx = 5)
 
 def checkErrors(passwordError,tcnError,phoneError,nameError,surnameError,usernameError):
-    errors=[]
+    errors=[] #Girilen bilgilerin boş olmaması, TCN ve telefon numalaralarının sayısal değer olması vb. gibi girdilerin kontrolü.
     if tcnError == 1:
         pass
     else:
@@ -112,12 +110,12 @@ def checkErrors(passwordError,tcnError,phoneError,nameError,surnameError,usernam
     else:
         return 1
 
-def errorBox(errors):
+def errorBox(errors): #Girdilerde sorun olması durumunda açılan hata penceresi.
     def innerFunc():
         errorFrame.destroy()
 
     errorTexts= {
-    "TCN":"Girilen TC Kimlik Numarasında bir hata var.",
+    "TCN":"Girilen TC Kimlik Numarasında bir hata var.", #Hatanın tipine göre gönderilen mesajlar:
     "phone":"Girilen telefon numarasında bir hata var.",
     "password":"Şifrende boşluk olamaz.",
     "name":"Adında boşluk olamaz.",
@@ -149,7 +147,7 @@ def errorBox(errors):
             ct.CTkLabel(master=errorFrame, text = errorTexts[i]).place(x=10, y = 30+(counter*20))
             counter = counter + 1
 
-def checkEntry(name, entry):
+def checkEntry(name, entry): #Girdilerin tekrar kontrolü.
     if name == "TCN":
         if len(entry)==11:
             for num in entry:
@@ -177,8 +175,8 @@ def checkEntry(name, entry):
             if letter == " ":
                 return "name"
     
-def openRegisterPanel():
-    def innerFunction():
+def openRegisterPanel(): #Kayıt olma ekranı.
+    def innerFunction(): #Girilen girdilerin alındığı ve hata kontrol fonksiyonuna gönderildiği fonksiyon.
         errors = []
         givenName = nameEntry.get() or -1
         givenSurname = surnameEntry.get() or -1
@@ -201,12 +199,12 @@ def openRegisterPanel():
         usernameError = checkEntry("name", givenUsername)
 
         if checkErrors(passwordError,tcnError,phoneError,nameError,surnameError,usernameError)== 1:
-            registerPanel.destroy()
+            registerPanel.destroy() #Hata yoksa veritabanına yeni kullanıcı bilgilerinin eklendiği if bloğu.
             cur.execute("""INSERT INTO userdata VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""", (givenUsername, givenName, givenSurname, givenPassword, givenTCN, givenPhoneNum, givenMail, givenAdress, givenUserType))
             con.commit()
             global loggedInUser
             loggedInUser = givenUsername
-            succesfulLogin()
+            succesfulLogin() #Giriş yapmayı sağlayan ve kayıt/giriş ekranını kapatan fonksiyonun çalışması.
 
     loginPanel.destroy()
 
@@ -268,7 +266,7 @@ def backButtonFunc():
     registerPanel.destroy()
     openLoginPanel()
 
-def openMainPanel():
+def openMainPanel(): # Giriş yapıldığında ekranın sağında oluşan büyük takvimin oluşturulması.
     mainPanel = ct.CTkFrame(master = root, width = 810, height = 630)
     mainPanel.place(x= 290, y = 10)
     mondayLabel = ct.CTkLabel(master = mainPanel, text = "Pazartesi").grid(row = 0, column = 1, pady = 2, padx = 35)
@@ -279,7 +277,7 @@ def openMainPanel():
     saturdayLabel = ct.CTkLabel(master = mainPanel, text = "Cumartesi").grid(row = 0, column = 6, pady = 2, padx = 35)
     sundayLabel = ct.CTkLabel(master = mainPanel, text = "Pazar").grid(row = 0, column = 7, pady = 2, padx = 35)
 
-def openMonthPanel():
+def openMonthPanel(): # Seçili olan ayın gösterildiği ve değiştirilebildiği ekranın oluşturulması.
     global monthPanel
     monthPanel = ct.CTkFrame(master= root, width = 275, height = 50)
     monthPanel.place(x = 10, y = 10)
@@ -288,8 +286,8 @@ def openMonthPanel():
     nextButton = ct.CTkButton(master = root, text = ">",  width = 5, command=lambda:printDate("n")).place(x = 260, y = 20)
     monthLabel = ct.CTkLabel(master = monthPanel, text = months[currentMonth-1] + "  " + str(currentYear)).place(x = 95, y = 12)
 
-def openCalendarPanel():
-    global calendarPanel
+def openCalendarPanel(): # Seçili olan aydaki gün bilgilerinin oluşturulduğu ve takvim olarak 7 satır, 6 sütun şeklinde ekrana
+    global calendarPanel # yazıldığı fonksiyon.
     calendarPanel = ct.CTkFrame(master= root, width = 802, height = 592, corner_radius= 0)
     calendarPanel.place(x = 290, y = 50)
 
@@ -301,8 +299,8 @@ def openCalendarPanel():
     sayac = 1
     limit1 = 500
     limit2 = 500
-
-    if (currentMonth-1) == 2:
+  
+    if (currentMonth-1) == 2:  #Ayların gün sayısına göre sorunsuz şekilde takvime eklenmesi için kullanılan if else bloğu.
         if (currentYear%4)==0:
             sayac = 29-fD+2
             limit1 = 29
@@ -331,7 +329,7 @@ def openCalendarPanel():
     id = 0
     esik = False
 
-    for x in range (1, 7, 1):
+    for x in range (1, 7, 1): #6x7 şeklinde günlerin takvime eklenmesi.
         yPos = 4 + ((x-1) * 98)
         for i in range (1, 8, 1):
             if sayac == limit1+1:
@@ -351,13 +349,13 @@ def openCalendarPanel():
             sayac = sayac + 1
             id = id + 1 
         
-def openUpcomingEventsPanel():
+def openUpcomingEventsPanel(): #Ekranın sol tarafında kalan yaklaşan etkinliklerin gösterildiği panel.
     upcomingEventsLabel = ct.CTkLabel(master = root, text = "1 ay içindeki etkinlikleriniz:").place(x = 70, y = 360)
     global selectedMonthEventsLabel
     selectedMonthEventsLabel = ct.CTkLabel(master= root, text = str(currentYear) +" yılı "+ months[currentMonth-1] + " ayındaki etkinlikleriniz:" )
     selectedMonthEventsLabel.place(x = 40, y = 80)
 
-def textToNumeric(dateText):
+def textToNumeric(dateText):  # Tarih bilgilerinin üzerinde kontrollerin yapılabilmesi için sayısal değere döndürülmesi fonksiyonu.
     sayac = 0
     day = 0
     year = dateText[-4:]
@@ -371,12 +369,12 @@ def textToNumeric(dateText):
     month = (months.index(month))+1
     return int(day), int(month), int(year)
 
-eventButtons = []
+eventButtons = []  #Butonların ve ID'lerinin kaydedildiği list'ler.
 eventBIDs = []
 eventTMButtons = []
 eventIDs = []
 
-def clearEvent(which):
+def clearEvent(which): # Panellerin güncellenebilmesi için list'lerin sıfırlandığı fonksiyon.
     if which == "tm":
         if len(eventTMButtons)>0:
             for button in eventTMButtons:
@@ -390,7 +388,7 @@ def clearEvent(which):
         eventButtons.clear()
         eventBIDs.clear()
 
-def eventsThisMonth():
+def eventsThisMonth(): # Seçili olan aydaki etkinlikler paneline, etkinlikleri ekleme fonksiyonu.
     clearEvent("tm")
     tmID = 0
     cur.execute("""SELECT * FROM events WHERE user = (?) AND visible = 1""", (loggedInUser,))
@@ -400,7 +398,7 @@ def eventsThisMonth():
         yPos = 110 + len(eventTMButtons)*30
         time = str(event[2])
         time = time[:2]+":"+time[2:]
-        if month == currentMonth and year == currentYear:
+        if month == currentMonth and year == currentYear: # Etkinlikler seçili olan aydaysa panele eklenmesi.
             eventTMButtons.append(ct.CTkFrame(master= root, width=275, height=25))
             eventTMButtons[tmID].place(x = 10, y= yPos)
             eventName = event[0]
@@ -412,7 +410,7 @@ def eventsThisMonth():
             ct.CTkButton(master= eventTMButtons[tmID], text = "Düzenle", command=lambda c=tmID:editEvent(eventIDs[c].cget("text")), height=20,width=40).place(x=210, y=2.25)
             tmID = tmID + 1
 
-def deleteEventPanel(eventID, eventName, eventDate):
+def deleteEventPanel(eventID, eventName, eventDate):  # Etkinlikleri silmek için oluşturulan panel.
     def deleteEvent(eventID):
         cur.execute("""UPDATE events SET visible = 0 WHERE user = (?) AND eventID = (?)""", (loggedInUser, eventID))
         con.commit()
@@ -429,16 +427,16 @@ def deleteEventPanel(eventID, eventName, eventDate):
     confirmButton = ct.CTkButton(master = deleteEventFrame, text="Evet, sil.", command=lambda:innerFunc(eventID)).place(x=8,y=165)
     backButton = ct.CTkButton(master = deleteEventFrame, text="Hayır, silme.", command=lambda:innerFunc(-1)).place(x=153, y=165)
 
-def updateEvent(args, eventID):
+def updateEvent(args, eventID): #Etkinliklerin veritabanında güncellenmesi.
     cur.execute("""UPDATE events SET eventName = (?), eventDetails =(?), startingTime = (?), endingTime = (?), reminderDay = (?) WHERE user = (?) AND eventID = (?)""", (args[0],args[1],args[2],args[3],args[5],loggedInUser, eventID))
     con.commit()
-    eventsThisMonth()
+    eventsThisMonth() #Güncellenen etkinliklerin panellerde de güncellenmesi.
     upcomingEvents()
 
-def editEvent(eventID):
+def editEvent(eventID): # Etkinlikleri güncellemek için açılan ekran.
     def dest():
         createEventPanel.destroy()
-    def innerFunc(date, evntNm):
+    def innerFunc(date, evntNm):  # Kullanıcının girdiği verileri kontrol eden ve hata yoksa güncelleme fonksiyonuna gönderen fonksiyon.
         givenEventName = eventNameEntry.get()
         givenEventsDetail = eventDetailsEntry.get("0.0", "end") or "Detay yok."
         givenStartingTime = str((startingTimeHoursEntry.get() or "12")) + str((startingTimeMinsEntry.get() or "00"))
@@ -483,7 +481,7 @@ def editEvent(eventID):
         uploadEvents()
         dest()
 
-    def switch_event():
+    def switch_event(): #Hatırlatıcının kurulup kurulmayacağını kontrol eden ve ona göre girdi alımını açıp kapatan fonksiyon
         if switchVariable.get() == "on":
             eventReminderEntry.configure(state = "normal")
         elif switchVariable.get() == "off":
@@ -538,7 +536,7 @@ def editEvent(eventID):
     backButton = ct.CTkButton(master= createEventPanel, text="Geri", width=135, height=40, command = dest).place(x = 13, y = 370)
     createEventButton = ct.CTkButton(master= createEventPanel, text="Kaydet", width=135, height=40, command=lambda:innerFunc(userEvents[0][5],userEvents[0][0])).place(x = 153, y= 370)
 
-def upcomingEvents():
+def upcomingEvents(): # 1 ay içindeki etkinliklerin tespit edilip panele eklendiği fonksiyon.
     clearEvent("upc")
     cur.execute("""SELECT * FROM events WHERE user = (?) AND visible = 1""", (loggedInUser,))
     userEvents = cur.fetchall()
@@ -547,12 +545,12 @@ def upcomingEvents():
     monthNow = datetime.now().month
     yearNow = datetime.now().year
     eventButtons.clear()
-    for event in userEvents:
+    for event in userEvents: # Etkinliklerin sayısal olarak tarihlerinin alınması.
         day, month, year = textToNumeric(event[5])
         yPos = 390 + len(eventButtons)*30
         time = str(event[2])
         time = time[:2]+":"+time[2:]
-        if year == yearNow:
+        if year == yearNow: # Etkinliklerin 1 ay içinde olup olmadığının kontrolü ve 1 ay içindeyse ekrana yazdırılmaları.
             if ((month == monthNow) and (day >= dayNow)) or ((month == monthNow-1) and (day>= dayNow)) or ((month == monthNow+1) and (day<= dayNow)):
                 eventButtons.append(ct.CTkFrame(master= root, width=275, height=25))
                 eventButtons[eventUPC].place(x = 10, y= yPos)
@@ -565,16 +563,16 @@ def upcomingEvents():
                 ct.CTkButton(master= eventButtons[eventUPC], text = "Düzenle", command=lambda c=eventUPC:editEvent(eventBIDs[c].cget("text")), height=20,width=40).place(x=210, y=2.25)
                 eventUPC = eventUPC + 1
 
-def uploadEvents():
+def uploadEvents(): # Oluşturulan yeni etkinliklerin sapdaki büyük takvimde günlerine eklenmesi için veritabanından bilgilerin alınması.
     cur.execute("""SELECT * FROM events WHERE user = (?) AND visible = 1""", (loggedInUser,))
     userEvents = cur.fetchall()
     for event in userEvents:
         for button in calendarButtons:
             bttnDate = button.cget("text")
             if event[5] == bttnDate:
-                eventCreated(event[0], event[2], button)
+                eventCreated(event[0], event[2], button) # Günlere etkinlikleri ekleyen fonksiyonun çağırılması.
 
-def eventCreated(name, time, bttn):
+def eventCreated(name, time, bttn): # Etkinlikleri ekleyen fonksiyon.
     eventShowFrame = ct.CTkFrame(master=bttn, width=110, height = 25, fg_color="#ff4040", corner_radius=0)
     eventShowFrame.place(x=0, y=25)
     time = str(time)
@@ -582,7 +580,7 @@ def eventCreated(name, time, bttn):
     eventTimeLabel = ct.CTkLabel(master=eventShowFrame, text = time,height=5).place(x=5, y=4)
     eventNameLabel = ct.CTkLabel(master=eventShowFrame, text = " - "+name,height=5).place(x=40, y=4)
 
-def succesfullyCreateEvent(args, bttn):
+def succesfullyCreateEvent(args, bttn): #Hatasız şekilde oluşturulan etkinliklerin veritabanına eklenmesi işlevini sağlayan fonksiyon.
     eventName = args[0]
     eventDetails = args[1] 
     startingTime = int(args[2])
@@ -595,7 +593,7 @@ def succesfullyCreateEvent(args, bttn):
         givenReminder = -1
     if reminderTime == '':
         reminderTime = -1
-    cur.execute("""SELECT * FROM events WHERE user = (?)""", (loggedInUser,))
+    cur.execute("""SELECT * FROM events WHERE user = (?)""", (loggedInUser,)) #Giriş yapan kullanıcının verilerinin alınması.
     userEvents = cur.fetchall()
     currentID = len(userEvents)
     cur.execute("""INSERT INTO events VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""", (eventName, eventDetails, startingTime, endingTime, reminderTime, eventDate, loggedInUser, currentID+1, 1))
@@ -604,8 +602,8 @@ def succesfullyCreateEvent(args, bttn):
     upcomingEvents()
     eventsThisMonth()
 
-def openCreateEventPanel(date, button):
-    def innerFunc():
+def openCreateEventPanel(date, button): #Etkinlik oluşturma ekranı.
+    def innerFunc(): #Hataların son kez kontrol edildiği ve hata olmadığı sürece etkinliğin veritabanına ekleneceği fonksiyona gönderilmesi.
         givenEventName = eventNameEntry.get() or -1
         givenEventsDetail = eventDetailsEntry.get("0.0", "end") or "Detay yok."
         givenStartingTime = str((startingTimeHoursEntry.get() or "12")) + str((startingTimeMinsEntry.get() or "00"))
@@ -642,13 +640,13 @@ def openCreateEventPanel(date, button):
                 errorBox(["rmndr"])
                 return
         args = [givenEventName, givenEventsDetail, givenStartingTime, givenEndingTime, reminderState, givenReminder, date]
-        succesfullyCreateEvent(args, button)
+        succesfullyCreateEvent(args, button) 
         eventCreateBack()
 
-    for bttn in calendarButtons:
+    for bttn in calendarButtons: #Arkaplandaki butonların tıklanmaya kapatılması.
         bttn.configure(state = "disabled")
 
-    def switch_event():
+    def switch_event(): # Hatırlatıcı kurulup kurulmayacağını kontrol eden fonksiyon. 
         if switchVariable.get() == "on":
             eventReminderEntry.configure(state = "normal")
         elif switchVariable.get() == "off":
@@ -693,19 +691,16 @@ def openCreateEventPanel(date, button):
     backButton = ct.CTkButton(master= createEventPanel, text="Geri", width=135, height=40, command = eventCreateBack).place(x = 13, y = 370)
     createEventButton = ct.CTkButton(master= createEventPanel, text="Oluştur", width=135, height=40, command=innerFunc).place(x = 153, y= 370)
     
-def eventCreateBack():
+def eventCreateBack(): #Etkinliklerin sorunsuz şekilde oluşturulmasından sonra butonların kullanıma açılması.
     createEventPanel.destroy()
     for bttn in calendarButtons:
         bttn.configure(state = "normal")
 
-def printDate(bttn):
-
-    global currentYear
-    global currentMonth
+def printDate(bttn): #Seçili olan ayın değiştirildiği fonksiyon.
 
     if bttn == "p":
-        if currentMonth > 1:
-            currentMonth = currentMonth - 1
+        if currentMonth > 1:                    #Kullanıcının bastığı butona göre bir önceki veya sonraki aya gitmesi ve ocak/aralık
+            currentMonth = currentMonth - 1     #aylarında oluşabilecek sorunların çözümü.
         elif currentMonth == 1:
             currentMonth = 12
             currentYear = currentYear - 1
@@ -716,8 +711,8 @@ def printDate(bttn):
             currentMonth = 1
             currentYear = currentYear + 1
 
-    monthPanel.destroy()
-    openMonthPanel()
+    monthPanel.destroy()                #Kullanıcı seçili ayı değiştirdiğinde panellerin yeniden yüklenebilmesi için
+    openMonthPanel()                    #gerekli fonksiyonların çağırılması ve açık olan panellerin kapatılması.
     calendarButtons.clear()
     calendarPanel.destroy()
     openCalendarPanel()
@@ -725,9 +720,8 @@ def printDate(bttn):
     openUpcomingEventsPanel()
     uploadEvents()
     eventsThisMonth()
-    #upcomingEvents()
 
-def succesfulLogin():
+def succesfulLogin():                   #Kullanıcı başarılı şekilde giriş yaptığında takvim ekranının açılması.
     openCalendarPanel()
     openUpcomingEventsPanel()
     openMainPanel()
